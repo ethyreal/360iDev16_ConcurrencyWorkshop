@@ -11,13 +11,20 @@ PlaygroundPage.current.needsIndefiniteExecution = true
  ### Using a Global Queue
  iOS has some global queues, where every task eventually ends up being executed. You can use these directly. You need to use the main queue for UI updates.
  */
-// TODO
+
+let queue = DispatchQueue.global(qos: DispatchQoS.QoSClass.userInitiated)
+
+let mainQueue = DispatchQueue.main
+
+let opQueue = OperationQueue.main
 
 //: ### Creating your own Queue
 //: Creating your own queues allow you to specify a label, which is super-useful for debugging.
 //: You can specify whether the queue is serial (default) or concurrent (see later).
 //: You can also specify the QOS or priority (here be dragons)
-// TODO
+
+let workerQueue = DispatchQueue(label: "com.truilaagent.workerqueue", qos: .userInitiated)
+
 
 //: ### Getting the queue name
 //: You can't get hold of the "current queue", but you can obtain its name - useful for debugging
@@ -34,7 +41,12 @@ print(currentQueue)
 //: ### Dispatching work asynchronously
 //: Send some work off to be done, and then continue on—don't await a result
 print("=== Sending asynchronously to Worker Queue ===")
-// TODO
+
+workerQueue.async {
+    usleep(100_000)
+    print("=== ASYNC: Executing on \(currentQueueName())")
+}
+
 print("=== Completed sending asynchronously to worker queue ===\n")
 
 
@@ -42,7 +54,12 @@ print("=== Completed sending asynchronously to worker queue ===\n")
 //: ### Dispatching work synchronously
 //: Send some work off and wait for it to complete before continuing (here be more dragons)
 print("=== Sending SYNChronously to Worker Queue ===")
-// TODO
+
+workerQueue.sync {
+    usleep(100_000)
+    print("=== SYNC: Executing on \(currentQueueName())")
+}
+
 print("=== Completed sending synchronously to worker queue ===\n")
 
 
@@ -55,11 +72,24 @@ func doComplexWork() {
 }
 
 print("=== Starting Serial ===")
-// TODO
+
+workerQueue.async(execute:doComplexWork)
+workerQueue.async(execute:doComplexWork)
+workerQueue.async(execute:doComplexWork)
+workerQueue.async(execute:doComplexWork)
+workerQueue.async(execute:doComplexWork)
 
 sleep(5)
 
-// TODO
+print("=== Starting Concurrent ===")
+
+let concurrentQueue = DispatchQueue(label: "com.truliaagent.concurrent", qos: .userInitiated, attributes: .concurrent)
+
+concurrentQueue.async(execute: doComplexWork)
+concurrentQueue.async(execute: doComplexWork)
+concurrentQueue.async(execute: doComplexWork)
+concurrentQueue.async(execute: doComplexWork)
+concurrentQueue.async(execute: doComplexWork)
 
 
 sleep(5)

@@ -12,20 +12,56 @@ import UIKit
 import PlaygroundSupport
 
 //: Create a new animation function on `UIView` that wraps an existing animation function, but now takes a dispatch group as well.
-// TODO
+extension UIView {
+    static func animateWithDuratation(_ duration: TimeInterval, animations: @escaping () -> Void, group: DispatchGroup, completion: ((Bool) -> ())? ) {
+        
+        group.enter()
+        
+        animate(withDuration: duration, animations: animations) { (success) in
+            completion?(success)
+            group.leave()
+        }
+    }
+}
 
 //: Create a disptach group with `dispatch_group_create()`:
-// TODO
+let animationGroup = DispatchGroup()
 
 //: The animation uses the following views
-// TODO
+let view = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+    
+view.backgroundColor = UIColor.red
+
+
+let box = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+
+box.backgroundColor = UIColor.yellow
+
+view.addSubview(box)
+
+PlaygroundPage.current.liveView = view
 
 //: The following completely independent animations now use the dispatch group so that you can determine when all of the animations have completed:
 
-// TODO
+
+UIView.animateWithDuratation(1, animations: { 
+    box.center = CGPoint(x:150, y:150)
+    }, group: animationGroup) { (_) in
+        
+        UIView.animateWithDuratation(2, animations: { 
+            box.transform = CGAffineTransform(rotationAngle: .pi/4)
+            }, group: animationGroup, completion: .none)
+}
+
+UIView.animateWithDuratation(4, animations: { 
+    view.backgroundColor = UIColor.green
+    }, group: animationGroup, completion: .none)
 
 
 //: `dispatch_group_notify()` allows you to specify a block that will be executed only when all the blocks in that dispatch group have completed:
-// TODO
-
+//animationGroup.notify(queue: DispatchQueue.main, work: DispatchWorkItem)
+animationGroup.notify(queue: DispatchQueue.main) { 
+    
+    view.backgroundColor = UIColor.purple
+}
 //: [➡ Thread safety with GCD Barriers](@next)

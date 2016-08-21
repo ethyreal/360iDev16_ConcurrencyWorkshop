@@ -30,16 +30,21 @@ import UIKit
 
 let image = UIImage(named: "dark_road_small.jpg")
 // TODO
+duration {
+    let result = tiltShift(image: image)
+}
 
 var outputImage: UIImage?
 
 //: You can use the `BlockOperation` subclass of `Operation` to easily wrap some functionality.
 
 // TODO
-
+let operation = BlockOperation {
+    outputImage = tiltShift(image: image)
+}
 //: You can then execute this operation with the `start()` method:
 // TODO
-
+operation.start()
 
 outputImage
 
